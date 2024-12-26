@@ -1,0 +1,143 @@
+import time
+import heapq
+import sys
+import matplotlib.pyplot as plt
+
+# Untuk Algoritma Rekursif
+def schedule_recursive(tasks, index=0, schedule=None, operation_count=None):
+    if schedule is None:
+        schedule = []
+    if operation_count is None:
+        operation_count = [0]
+
+    if index == len(tasks):
+        return schedule, operation_count[0]
+
+    schedule.append(tasks[index])
+    operation_count[0] += 1  # Menghitung operasi append
+    return schedule_recursive(tasks, index + 1, schedule, operation_count)
+
+# Untuk Algoritma Priority Queue
+def schedule_priority_queue(tasks):
+    heapq.heapify(tasks)  # Mengubah daftar menjadi priority queue
+    operation_count = len(tasks)  
+    scheduled_tasks = []
+
+    while tasks:
+        priority, task = heapq.heappop(tasks)  # Mengambil elemen dari prioritas tertinggi
+        scheduled_tasks.append(task)
+        operation_count += 1  
+
+    return scheduled_tasks, operation_count
+
+# Untuk Algoritma Iteratif
+def schedule_iterative(tasks):
+    schedule = []
+    operation_count = 0
+
+    for task in tasks:
+        schedule.append(task)
+        operation_count += 1  # Menghitung operasi append
+
+    return schedule, operation_count
+
+# Untuk Analisis Kelas Efisiensi
+def analyze_efficiency():
+    input_sizes = input("\nMasukkan ukuran dataset, pisahkan dengan koma: ").split(',')
+    input_sizes = [int(size.strip()) for size in input_sizes]
+
+    recursive_times = []
+    priority_queue_times = []
+    iterative_times = []
+
+    recursive_operations = []
+    priority_queue_operations = []
+    iterative_operations = []
+
+    for size in input_sizes:
+        tasks = [f"Machine {i}" for i in range(size)]  # Membuat daftar tugas
+        tasks_with_priority = [(i, f"Machine {i}") for i in range(size, 0, -1)]  # Membuat daftar prioritas secara descending
+
+        # Mengukur waktu dan operasi untuk algoritma rekursif
+        start_time = time.time()
+        try:
+            _, rec_ops = schedule_recursive(tasks)
+            end_time = time.time()
+            recursive_times.append(end_time - start_time)
+            recursive_operations.append(rec_ops)
+        except RecursionError:
+            end_time = time.time()
+            recursive_times.append(end_time - start_time)
+            recursive_operations.append(None)  # Tandai jika terjadi batas rekursi
+
+        # Mengukur waktu dan operasi untuk algoritma priority queue
+        start_time = time.time()
+        _, pq_ops = schedule_priority_queue(tasks_with_priority)
+        end_time = time.time()
+        priority_queue_times.append(end_time - start_time)
+        priority_queue_operations.append(pq_ops)
+
+        # Mengukur waktu dan operasi untuk algoritma iteratif
+        start_time = time.time()
+        _, it_ops = schedule_iterative(tasks)
+        end_time = time.time()
+        iterative_times.append(end_time - start_time)
+        iterative_operations.append(it_ops)
+
+    # Menampilkan hasil dalam bentuk tabel
+    print("\n==========PROGRAM PENJADWALAN PEMELIHARAAN MESIN DENGAN ALGORTIMA RECURSION, PRIORITY QUEUE, DAN ITERAVITE==========")
+    print("\nDataset yang dimasukkan oleh user :", ",".join(map(str, input_sizes)))
+    print("\nHasil simulasi sesuai data set:")
+    print("+----------------------+------------------------+------------------------------+------------------------+")
+    print("|    Input Data (n)    | Algoritma Rekursif (s) | Algoritma Priority Queue (s) | Algoritma Iteratif (s) |")
+    print("+----------------------+------------------------+------------------------------+------------------------+")
+    for i, size in enumerate(input_sizes):
+        rec_time = f"{recursive_times[i]:.6f}" if recursive_operations[i] is not None else "-"
+        pq_time = f"{priority_queue_times[i]:.6f}"
+        it_time = f"{iterative_times[i]:.6f}"
+        print(f"| {size:<20} | {rec_time:<22} | {pq_time:<28} | {it_time:<22} |")
+    print("+----------------------+------------------------+------------------------------+------------------------+")
+
+    # Menampilkan jumlah operasi
+    print("\nJumlah Operasi:")
+    for i, size in enumerate(input_sizes):
+        rec_ops = recursive_operations[i] if recursive_operations[i] is not None else "-"
+        pq_ops = priority_queue_operations[i]
+        it_ops = iterative_operations[i]
+        print(f"Input size {size}: Recursion = {rec_ops}, Priority Queue = {pq_ops}, Iterative = {it_ops}")
+
+    # Menampilkan grafik
+    plt.figure(figsize=(12, 8))
+    plt.plot(input_sizes, recursive_times, label='Recursion', marker='s', linestyle='-', color='yellow')
+    plt.plot(input_sizes, priority_queue_times, label='Priority Queue', marker='o', linestyle='-', color='skyblue')
+    plt.plot(input_sizes, iterative_times, label='Iterative', marker='^', linestyle='-', color='darkgreen')
+    plt.title('Grafik Analisis Efisiensi Algoritma Penjadwalan Pemeliharaan Mesin', fontsize=16, fontweight='bold')
+    plt.xlabel('Ukuran Input (n)', fontsize=14)
+    plt.ylabel('Waktu Eksekusi (second)', fontsize=14)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    plt.tight_layout()
+    plt.show()
+
+# Tampilan Utama
+if __name__ == "__main__":
+    sys.setrecursionlimit(10000)
+
+    print("\nJadwal Recursion:")
+    print(schedule_recursive(['Machine A', 'Machine B', 'Machine C'])[0])
+
+    print("\nJadwal Priority Queue:")
+    print(schedule_priority_queue([(3, 'Machine A'), (1, 'Machine B'), (2, 'Machine C')])[0])
+
+    print("\nJadwal Iterative:")
+    print(schedule_iterative(['Machine A', 'Machine B', 'Machine C'])[0])
+
+    # Analisis Efisiensi
+    analyze_efficiency()
+
+    # Penjelasan Kesimpulan
+    print("\nAlgoritma Priority Queue: Menggunakan heap untuk penjadwalan berdasarkan prioritas, lebih efisien untuk dataset besar.")
+    print("\nAlgoritma Rekursif: Menggunakan pemanggilan fungsi berulang, tetapi kurang efisien untuk dataset besar karena keterbatasan rekursi.")
+    print("\nAlgoritma Iteratif: Sederhana dan efisien dalam memori, cocok untuk dataset besar dan kecil.")
