@@ -11,4 +11,4 @@ Anggota :
    
 Kelas : IF-11-05
 
-Link Google Colab : https://colab.research.google.com/drive/13Kt8b9VajkkNvQmTGa0oQYJcsfu91tRy#scrollTo=LFOZ_j12rxDb
+Link Google Colab : https://colab.research.google.com/drive/13Kt8b9VajkkNvQmTGa0oQYJcsfu91tRy?usp=sharing
